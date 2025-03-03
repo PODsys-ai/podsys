@@ -1,0 +1,47 @@
+# contents not in repositorie
+
+```
+beegfs_server_software/
+├── beegfs-client_7.3.4_all.deb
+├── beegfs-client-autobuild.conf
+├── beegfs-client-compat_7.3.4_all.deb
+├── beegfs-client-dev_7.3.4_amd64.deb
+├── beegfs-common_7.3.4_amd64.deb
+├── beegfs-helperd_7.3.4_amd64.deb
+├── beegfs-meta_7.3.4_amd64.deb
+├── beegfs-mgmtd_7.3.4_amd64.deb
+├── beegfs-mon_7.3.4_amd64.deb
+├── beegfs-storage_7.3.4_amd64.deb
+├── beegfs-utils_7.3.4_amd64.deb
+├── beegfs-utils-dev_7.3.4_amd64.deb
+└── libbeegfs-ib_7.3.4_amd64.deb
+
+dwarves/
+├── dwarves_1.25-0ubuntu1~22.04.2_all.deb
+└── pahole_1.25-0ubuntu1~22.04.2_amd64.deb
+
+ldap-client/
+├── ldap-utils_2.5.18+dfsg-0ubuntu0.22.04.2_amd64.deb
+├── libnss-ldapd_0.9.12-2_amd64.deb
+├── libpam-ldapd_0.9.12-2_amd64.deb
+├── nscd_2.35-0ubuntu3.8_amd64.deb
+├── nslcd_0.9.12-2_amd64.deb
+├── nslcd-utils_0.9.12-2_all.deb
+└── oddjob_0.34.6-1_amd64.deb
+
+ldap-server/
+├── ldap-utils_2.5.18+dfsg-0ubuntu0.22.04.2_amd64.deb
+├── libodbc2_2.3.9-5ubuntu0.1_amd64.deb
+└── slapd_2.5.18+dfsg-0ubuntu0.22.04.2_amd64.deb
+
+nis/
+├── libnss-nis_3.1-0ubuntu6_amd64.deb
+├── nis_4.4_all.deb
+├── nscd_2.35-0ubuntu3.8_amd64.deb
+├── ypbind-mt_2.7.2-2_amd64.deb
+├── ypserv_4.1-2_amd64.deb
+└── yp-tools_4.2.3-3_amd64.deb
+
+rebuild
+
+```
