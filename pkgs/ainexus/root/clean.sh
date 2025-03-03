@@ -3,20 +3,21 @@ service dnsmasq stop
 rm -f /etc/dnsmasq.conf
 rm /workspace/log/dnsmasq.log
 
-rm -f /tftp/pxe_ubuntu2204/pxelinux.cfg/default
-rm -f /tftp/pxe_ubuntu2204/grub/grub.cfg
-rm -f /tftp/pxe_ubuntu2204/vmlinuz
-rm -f /tftp/pxe_ubuntu2204/initrd
+umount /iso
 
-rm -f /tftp/ipxe_ubuntu2204/ubuntu2204.cfg
-rm -f /jammy/user-data
+rm -f /tftp/ubuntu2204.cfg
+rm -f /user-data/user-data
 
-rm -f /var/log/dpkg.log
+rm -f /var/log/*.log
 rm -f /var/log/apt/eipp.log.xz
-rm -f /var/log/apt/history.log
-rm -f /var/log/apt/term.log
+rm -f /var/log/apt/*.log
+
+rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
+
 rm .viminfo
-rm -rf /tmp/*
+rm -rf /tmp/* /var/tmp/*
+rm -rf /usr/share/doc/* /usr/share/man/* /usr/share/info/*
+
 cat /dev/null > ~/.bash_history
 
 ps aux | grep podsys-core

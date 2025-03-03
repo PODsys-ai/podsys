@@ -15,15 +15,15 @@ nfs_version=$(dpkg-query -W -f='${Version}' nfs-kernel-server 2>/dev/null)
 nfs_status=$(systemctl is-active nfs-server 2>/dev/null)
 
 # expected
-expected_system_version="Ubuntu 22.04.5 LTS"
-expected_kernel_version="5.15.0-119-generic"
-expected_gpu_driver_version="535.230.02"
-expected_cuda_version="12.2"
-expected_docker_version="27.4.0"
-expected_nvidia_container_version="1.17.3"
+expected_system_version="Ubuntu 24.04.2 LTS"
+expected_kernel_version="6.8.0-41-generic"
+expected_gpu_driver_version="570.86.15"
+expected_cuda_version="12.8"
+expected_docker_version="27.5.1"
+expected_nvidia_container_version="1.17.4"
 expected_ofed_info="MLNX_OFED_LINUX-24.10-1.1.4.0:"
-expected_pdsh="pdsh-2.31 (+debug)"
-expected_nfs_version="1:2.6.1-1ubuntu1.2"
+expected_pdsh="pdsh-2.34 (+readline+debug)"
+expected_nfs_version="1:2.6.4-3ubuntu5.1"
 expected_nfs_status="active"
 
 all_conditions_met=true

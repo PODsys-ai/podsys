@@ -33,8 +33,8 @@ else
     OS_Description=$(lsb_release -d -s 2>/dev/null || echo "" )
 fi
 
-if [ "$OS_Description" != "Ubuntu 22.04.5 LTS" ]; then
-    echo "Error: This script is only supported on Ubuntu 22.04.5 LTS"
+if [ "$OS_Description" != "Ubuntu 24.04.2 LTS" ]; then
+    echo "Error: This script is only supported on Ubuntu 24.04.2 LTS"
     exit 1
 fi
 
@@ -44,7 +44,7 @@ hostname=$(hostname)
 timestamp=$(date +%Y-%m-%d_%H-%M-%S)
 install_log="./workspace/log/${hostname}_install_${timestamp}.log"
 
-IB=MLNX_OFED_LINUX-24.10-1.1.4.0-ubuntu22.04-ext
+IB=MLNX_OFED_LINUX-24.10-1.1.4.0-ubuntu24.04-ext
 
 # install common deb
 echo -e "\033[32m---Install deb---\033[0m"
@@ -60,7 +60,6 @@ apt-get purge -y unattended-upgrades                    >> $install_log
 dpkg -i ./common/lib/*.deb                              >> $install_log
 dpkg -i ./common/tools/*.deb                            >> $install_log
 dpkg -i ./common/docker/*.deb                           >> $install_log
-dpkg -i ./common/updates/*.deb                          >> $install_log
 dpkg -i ./common/nfs/*.deb                              >> $install_log
 echo -e "\e[32m$(date +%Y-%m-%d_%H-%M-%S) Finish install deb------\e[0m"  >> $install_log
 rm -rf common/
@@ -193,7 +192,7 @@ systemctl restart docker >> $install_log
 
 set_release() {
     current_datetime=$(date +%Y-%m-%d-%H-%M-%S)
-    echo "PODsys_Version=\"3.0.1\"" > /etc/podsys-release
+    echo "PODsys_Version=\"3.1\"" > /etc/podsys-release
     echo "PODsys_Deployment_DATE=\"$current_datetime\"" >> /etc/podsys-release
 }
 

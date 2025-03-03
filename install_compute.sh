@@ -22,7 +22,7 @@ if docker ps -a --format '{{.Image}}' | grep -q "ainexus:v3.0"; then
     docker rmi ainexus:v3.0 >/dev/null
 fi
 
-docker import pkgs/ainexus-3.0.1 ainexus:v3.0 >/dev/null &
+docker import pkgs/ainexus-3.1 ainexus:v3.0 >/dev/null &
 pid=$!
 while ps -p $pid >/dev/null; do
     echo -n "*"
@@ -30,9 +30,7 @@ while ps -p $pid >/dev/null; do
 done
 echo
 
-# mode=ipxe_ubuntu2204 or mode=pxe_ubuntu2204
-# download_mode=http or download_mode=nfs or download_mode=p2p
-mode="ipxe_ubuntu2204"
+# download_mode=http|nfs|p2p
 download_mode="http"
 
 if [ "$download_mode" = "nfs" ]; then
@@ -41,7 +39,7 @@ if [ "$download_mode" = "nfs" ]; then
     tar -xzf $PWD/workspace/drivers/nvidia.tgz -C $PWD/workspace/
 fi
 
-docker run -e "mode=$mode" -e "download_mode=$download_mode" -e "NEW_PUB_KEY=$new_pub_key" --name podsys --privileged=true -it --network=host -v $PWD/workspace:/workspace ainexus:v3.0 /bin/bash
+docker run -e "download_mode=$download_mode" -e "NEW_PUB_KEY=$new_pub_key" --name podsys --privileged=true -it --network=host -v $PWD/workspace:/workspace ainexus:v3.0 /bin/bash
 
 sleep 1
 if docker ps -a --format '{{.Image}}' | grep -q "ainexus:v3.0"; then

@@ -4,9 +4,9 @@
 workspace/
 ├── drivers
 │   ├── common.tgz
-│   ├── cuda_12.2.2_535.104.05_linux.run
+│   ├── cuda_12.8.0_570.86.10_linux.run
 │   ├── ib.tgz
 │   └── nvidia.tgz
 ├── nfs.tgz
-└── ubuntu-22.04.5-live-server-amd64.iso
+└── ubuntu-24.04.2-live-server-amd64.iso
 ```

@@ -48,8 +48,6 @@ elif [ "$1" = "-nfs" ]; then
                 echo "Please enter an absolute path"
         fi
 
-elif [ "$1" = "-beegfs" ]; then
-        sudo -u ${username} pdsh -l root -R ssh -w ^hosts.txt /home/${username}/podsys/scripts/conf_client_beegfs.sh
 
 elif [ "$1" = "-nis" ]; then
         if [ $# -lt 2 ]; then

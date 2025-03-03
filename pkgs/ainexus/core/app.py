@@ -90,23 +90,23 @@ def download_file(filepath):
     BASE_DIR = "/"
     file_path = os.path.join(BASE_DIR, filepath)
     if os.path.isfile(file_path):
-        if file_path == "/jammy/initrd":
+        if "initrd" in file_path:
             app.config["count_initrd"] += 1
-        elif file_path == "/jammy/vmlinuz":
+        elif "vmlinuz" in file_path:
             app.config["count_vmlinuz"] += 1
-        elif file_path == "/workspace/ubuntu-22.04.5-live-server-amd64.iso":
+        elif "iso" in file_path:
             app.config["count_iso"] += 1
-        elif file_path == "/jammy/user-data":
+        elif file_path == "/user-data/user-data":
             app.config["count_userdata"] += 1
-        elif file_path == "/jammy/preseed.sh":
+        elif file_path == "/user-data/preseed.sh":
             app.config["count_preseed"] += 1
-        elif file_path == "/workspace/drivers/common.tgz":
+        elif "common.tgz" in file_path:
             app.config["count_common"] += 1
-        elif file_path == "/workspace/drivers/ib.tgz":
+        elif "ib.tgz" in file_path:
             app.config["count_ib"] += 1
-        elif file_path == "/workspace/drivers/nvidia.tgz":
+        elif "nvidia.tgz" in file_path:
             app.config["count_nvidia"] += 1
-        elif file_path == "/workspace/drivers/cuda_12.2.2_535.104.05_linux.run":
+        elif ".run" in file_path:
             app.config["count_cuda"] += 1
 
         return send_file(file_path, as_attachment=True)
@@ -139,7 +139,7 @@ def get_time():
         if os.path.exists(dnsmasq_log_path):
             with open(dnsmasq_log_path, "r") as file:
                 for line in file:
-                    if "ipxe_ubuntu2204/ubuntu2204.cfg" in line:
+                    if "/tftp/ubuntu2404.cfg" in line:
                         time_regex = r"(\w{3}\s+\d{1,2}\s+\d{2}:\d{2}:\d{2})"
                         matched = re.search(time_regex, line)
                         time_str = matched.group(1)
@@ -363,7 +363,7 @@ def receive_serial_e():
         if os.path.exists(dnsmasq_log_path):
             with open(dnsmasq_log_path, "r") as file:
                 for line in file:
-                    if "ipxe_ubuntu2204/ubuntu2204.cfg" in line:
+                    if "/tftp/ubuntu2404.cfg" in line:
                         time_regex = r"(\w{3}\s+\d{1,2}\s+\d{2}:\d{2}:\d{2})"
                         matched = re.search(time_regex, line)
                         time_str = matched.group(1)

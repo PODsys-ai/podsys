@@ -22,7 +22,7 @@ cd /podsys-core
 
 ### build
 ``` shell
-pyinstaller --onefile --add-data "templates:templates" --add-data "static:static" --upx-dir=/usr/bin/upx --strip --clean --name podsys-core --exclude-module wheel --exclude-module PyGObject --exclude-module pyinstaller --exclude-module pipdeptree app.py
+pyinstaller --onefile --add-data "templates:templates" --add-data "static:static" --upx-dir=/usr/bin/upx --strip --clean --name podsys-core  --exclude-module PyGObject --exclude-module pyinstaller --exclude-module pipdeptree app.py
 ```
 
 ### test

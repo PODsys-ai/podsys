@@ -1,10 +1,8 @@
 #!/bin/bash
 cd $(dirname $0)
-start_flask_app() {
-        nohup  /root/podsys-core  > /dev/null 2>&1 &
-}
 
-ISO=ubuntu-22.04.5-live-server-amd64.iso
+
+ISO=ubuntu-24.04.2-live-server-amd64.iso
 manager_ip=$(grep "manager_ip" /workspace/config.yaml | cut -d ":" -f 2 | tr -d '[:space:]')
 manager_nic=$(grep "manager_nic" /workspace/config.yaml | cut -d ":" -f 2 | tr -d '[:space:]')
 compute_storage=$(grep "compute_storage" /workspace/config.yaml | cut -d ":" -f 2 | tr -d '[:space:]')
@@ -12,7 +10,7 @@ compute_passwd=$(grep "compute_passwd" /workspace/config.yaml | cut -d ":" -f 2 
 dhcp_s=$(grep "dhcp_s" /workspace/config.yaml | cut -d ":" -f 2 | tr -d '[:space:]')
 dhcp_e=$(grep "dhcp_e" /workspace/config.yaml | cut -d ":" -f 2 | tr -d '[:space:]')
 
-echo -e "\033[43;31m "Welcome to the cluster deployment software v3.0.1"\033[0m"
+echo -e "\033[43;31m "Welcome to the cluster deployment software v3.1"\033[0m"
 echo "  ____     ___    ____    ____   __   __  ____  ";
 echo " |  _ \   / _ \  |  _ \  / ___|  \ \ / / / ___| ";
 echo " | |_) | | | | | | | | | \___ \   \ V /  \___ \ ";
@@ -21,7 +19,14 @@ echo " |_|      \___/  |____/  |____/    |_|   |____/ ";
 echo
 
 echo -e "\033[31mdhcp-config : /etc/dnsmasq.conf\033[0m"
-echo -e "\033[31muser-data   : /jammy/user-data\033[0m"
+echo -e "\033[31muser-data   : /user-data/user-data\033[0m"
+
+if [ ! -f "/workspace/${ISO}" ]; then
+  echo "ISO not exist : /workspace/${ISO}"
+  exit 1
+fi
+chmod 755 /workspace/${ISO}
+mount /workspace/${ISO} /iso >/dev/null 2>&1
 
 if [ "${download_mode}" == "p2p" ]; then
   nohup /root/opentracker > /dev/null 2>&1 &
@@ -35,23 +40,6 @@ fi
 compute_encrypted_password=$(printf "${compute_passwd}" | openssl passwd -6 -salt 'FhcddHFVZ7ABA4Gi' -stdin)
 
 ################################ get /etc/dnsmasq.conf
-dnsmasq_conf=$(cat << EOF
-port=5353
-interface=$manager_nic
-bind-interfaces
-dhcp-range=${dhcp_s},${dhcp_e},255.255.0.0,6h
-dhcp-match=set:bios,option:client-arch,0
-dhcp-match=set:efi-x86_64,option:client-arch,7
-dhcp-match=set:efi-x86_64,option:client-arch,9
-dhcp-boot=tag:bios,pxelinux.0
-dhcp-boot=tag:efi-x86_64,bootx64.efi
-enable-tftp
-tftp-root=/tftp/pxe_ubuntu2204
-log-facility=/workspace/log/dnsmasq.log
-log-queries
-log-dhcp
-EOF
-)
 
 dnsmasq_conf_ipxe=$(cat << EOF
 port=5353
@@ -64,9 +52,9 @@ dhcp-match=set:x64-uefi,option:client-arch,9
 dhcp-match=set:ipxe,175
 dhcp-boot=tag:bios,undionly.kpxe
 dhcp-boot=tag:x64-uefi,snponly.efi
-dhcp-boot=tag:ipxe,ubuntu2204.cfg
+dhcp-boot=tag:ipxe,ubuntu2404.cfg
 enable-tftp
-tftp-root=/tftp/ipxe_ubuntu2204
+tftp-root=/tftp/
 log-facility=/workspace/log/dnsmasq.log
 log-queries
 log-dhcp
@@ -74,66 +62,11 @@ EOF
 )
 
 ################################ get grub.cfg
-grub_cfg=$(cat << EOF
-set default="1"
-set timeout=5
 
-#if loadfont unicode ; then
-#  set gfxmode=auto
-#  set locale_dir=\$prefix/locale
-#  set lang=en_US
-#fi
-terminal_output gfxterm
-
-set menu_color_normal=white/black
-set menu_color_highlight=black/light-gray
-if background_color 44,0,30; then
-  clear
-fi
-
-function gfxmode {
-        set gfxpayload="\${1}"
-        if [ "\${1}" = "keep" ]; then
-                set vt_handoff=vt.handoff=7
-        else
-                set vt_handoff=
-        fi
-}
-
-set linux_gfx_mode=keep
-export linux_gfx_mode
-
-menuentry 'Ubuntu 22.04.5 autoinstall' {
-        gfxmode \$linux_gfx_mode
-        linux /vmlinuz \$vt_handoff root=/dev/ram0 ramdisk_size=2000000 ip=dhcp url=http://${manager_ip}:5000/workspace/${ISO} autoinstall ds=nocloud-net\;s=http://${manager_ip}:5000/jammy/ ---
-        initrd /initrd
-}
-EOF
-)
-
-pxelinux_cfg_default=$(cat << EOF
-DEFAULT menu.c32
-MENU TITLE ULTIMATE PXE SERVER - By Griffon - Ver 1.0
-PROMPT 0
-TIMEOUT 0
-
-MENU COLOR TABMSG  37;40  #ffffffff #00000000
-MENU COLOR TITLE   37;40  #ffffffff #00000000
-MENU COLOR SEL      7     #ffffffff #00000000
-MENU COLOR UNSEL    37;40 #ffffffff #00000000
-MENU COLOR BORDER   37;40 #ffffffff #00000000
-
-LABEL Ubuntu Server 22.04.5
-    kernel /vmlinuz
-    initrd /initrd
-    append root=/dev/ram0 ip=dhcp ramdisk_size=2000000 url=http://${manager_ip}:5000/workspace/${ISO} autoinstall ds=nocloud-net;s=http://${manager_ip}:5000/jammy/  cloud-config-url=/dev/null
-EOF
-)
-
-ipxe_ubuntu2204_cfg=$(cat << EOF
+ipxe_ubuntu2404_cfg=$(cat << EOF
 #!ipxe
-set product-name ubuntu2204
-set os-name ubuntu2204
+set product-name ubuntu2404
+set os-name ubuntu2404
 
 set menu-timeout 1000
 set submenu-timeout \${menu-timeout}
@@ -156,26 +89,14 @@ goto \${selected}
 
 :install-os
 set server http://${manager_ip}:5000/
-initrd \${server}jammy/initrd
-kernel \${server}jammy/vmlinuz initrd=initrd ip=dhcp url=\${server}workspace/${ISO} autoinstall ds=nocloud-net;s=\${server}jammy/ root=/dev/ram0 cloud-config-url=/dev/null
+initrd \${server}/iso/casper/initrd
+kernel \${server}/iso/casper/vmlinuz initrd=initrd ip=dhcp url=\${server}workspace/${ISO} autoinstall ds=nocloud-net;s=\${server}user-data/ root=/dev/ram0 cloud-config-url=/dev/null
 boot
 EOF
 )
 
-
-if [ "$mode" = "ipxe_ubuntu2204" ]; then
-   echo "$dnsmasq_conf_ipxe" > /etc/dnsmasq.conf
-   echo "$ipxe_ubuntu2204_cfg" > /tftp/ipxe_ubuntu2204/ubuntu2204.cfg
-elif [ "$mode" = "pxe_ubuntu2204" ]; then
-   echo "$dnsmasq_conf"        > /etc/dnsmasq.conf
-   echo "$grub_cfg"            > /tftp/pxe_ubuntu2204/grub/grub.cfg
-   echo "$pxelinux_cfg_default"   > /tftp/pxe_ubuntu2204/pxelinux.cfg/default
-   cp /jammy/vmlinuz /tftp/pxe_ubuntu2204/vmlinuz
-   cp /jammy/initrd   /tftp/pxe_ubuntu2204/initrd
-else
-   echo "$dnsmasq_conf_ipxe" > /etc/dnsmasq.conf
-   echo "$ipxe_ubuntu2204_cfg" > /tftp/ipxe_ubuntu2204/ubuntu2204.cfg
-fi
+echo "$dnsmasq_conf_ipxe" > /etc/dnsmasq.conf
+echo "$ipxe_ubuntu2404_cfg" > /tftp/ubuntu2404.cfg
 
 if [ -s /workspace/mac_ip.txt ]; then
     echo "dhcp-ignore=tag:!known" >> /etc/dnsmasq.conf
@@ -229,12 +150,12 @@ autoinstall:
     install-server: true
   early-commands:
     - echo "${NEW_PUB_KEY}" >/root/.ssh/authorized_keys
-    - wget http://${manager_ip}:5000/jammy/preseed.sh && chmod 755 preseed.sh && bash preseed.sh ${manager_ip} ${compute_storage}
+    - wget http://${manager_ip}:5000/user-data/preseed.sh && chmod 755 preseed.sh && bash preseed.sh ${manager_ip} ${compute_storage}
   late-commands:
     - cp /etc/netplan/00-installer-config.yaml /target/etc/netplan/00-installer-config.yaml
-    - mkdir /target/root/.ssh && echo "${NEW_PUB_KEY}" >/target/root/.ssh/authorized_keys
-    - wget http://${manager_ip}:5000/jammy/preseed1.sh && chmod 755 preseed1.sh && bash preseed1.sh ${manager_ip} ${download_mode}
-    - curtin in-target --target=/target -- wget http://${manager_ip}:5000/jammy/install.sh
+    - echo "${NEW_PUB_KEY}" >/target/root/.ssh/authorized_keys
+    - wget http://${manager_ip}:5000/user-data/preseed1.sh && chmod 755 preseed1.sh && bash preseed1.sh ${manager_ip} ${download_mode}
+    - curtin in-target --target=/target -- wget http://${manager_ip}:5000/user-data/install.sh
     - curtin in-target --target=/target -- chmod 755 install.sh || true
     - curtin in-target --target=/target -- /install.sh ${manager_ip} ${download_mode}
     - umount /target/podsys || true
@@ -325,7 +246,7 @@ autoinstall:
       id: mount-0
 EOF
 )
-echo -e "$userdata" >> /jammy/user-data
+echo -e "$userdata" >> /user-data/user-data
 
 ########################################start server
 echo
@@ -338,4 +259,4 @@ echo "checking services: "
 service dnsmasq status
 echo
 chmod 755 -R /workspace/log
-start_flask_app
+nohup  /root/podsys-core  > /dev/null 2>&1 &

@@ -32,5 +32,5 @@ if [ "$G_DOWNLOAD_MODE" == "p2p" ]; then
     tar -xzf /tmp/common.tgz -C /target/
     tar -xzf /tmp/ib.tgz -C /target/
     tar -xzf /tmp/nvidia.tgz -C /target/
-    cp /tmp/cuda_12.2.2_535.104.05_linux.run /target/cuda_12.2.2_535.104.05_linux.run
+    cp /tmp/*.run /target/
 fi

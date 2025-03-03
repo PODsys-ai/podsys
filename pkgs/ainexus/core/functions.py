@@ -51,7 +51,7 @@ def count_dnsmasq(dnsmasq_log_path):
     try:
         with open(dnsmasq_log_path, "r") as file:
             for line in file:
-                if "ipxe_ubuntu2204/ubuntu2204.cfg" in line:
+                if "/tftp/ubuntu2404.cfg" in line:
                     starttag_count += 1
     except FileNotFoundError:
         print(f"Error: The file {dnsmasq_log_path} does not exist.")
@@ -109,7 +109,7 @@ def update_installing_status(monitor_data, serial_number, client_ip):
         if i == 0:
             continue
         parts = line
-        if parts[1] == serial_number and parts[3] == "F":
+        if parts[1] == serial_number:
             monitor_data[i][3] = "T"
             found = True
             return found, monitor_data

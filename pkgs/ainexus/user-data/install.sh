@@ -3,7 +3,7 @@ cd $(dirname $0)
 
 set_release() {
     current_datetime=$(date +%Y-%m-%d-%H-%M-%S)
-    echo "PODsys_Version=\"3.0.1\"" >/etc/podsys-release
+    echo "PODsys_Version=\"3.1\"" >/etc/podsys-release
     echo "PODsys_Deployment_DATE=\"$current_datetime\"" >>/etc/podsys-release
 }
 
@@ -78,7 +78,6 @@ install_packages_from_dir() {
     dpkg -i "$dir"/tools/*.deb >>"$install_log"
     dpkg -i "$dir"/docker/*.deb >>"$install_log"
     dpkg -i "$dir"/nfs/*.deb >>"$install_log"
-    dpkg -i "$dir"/updates/*.deb >>"$install_log"
 }
 
 install_compute() {
@@ -89,7 +88,7 @@ install_compute() {
     log_name="${HOSTNAME}_install_${timestamp}.log"
     curl -X POST -d "serial=$SN&log=$log_name" "http://$1:5000/updatelog"
 
-    CUDA=cuda_12.2.2_535.104.05_linux.run
+    CUDA=cuda_12.8.0_570.86.10_linux.run
     IB=MLNX_OFED_LINUX-24.10-1.1.4.0-ubuntu22.04-ext
 
     # install deb
@@ -236,18 +235,18 @@ install_compute() {
         echo -e "\e[32m$(date +%Y-%m-%d_%H-%M-%S) Start install cuda------\e[0m" >>$install_log
         if [ "$method" == "http" ]; then
             wget -q http://$1:5000/workspace/drivers/${CUDA}
-            chmod 755 ${CUDA}
-            ./${CUDA} --silent --toolkit >>$install_log
+            chmod 755 *.run
+            ./*.run --silent --toolkit >>$install_log
         elif [ "$method" == "nfs" ]; then
-            ./podsys/drivers/${CUDA} --silent --toolkit >>$install_log
+            ./podsys/drivers/*.run --silent --toolkit >>$install_log
         elif [ "$method" == "p2p" ]; then
-            chmod 755 ${CUDA}
-            ./${CUDA} --silent --toolkit >>$install_log
+            chmod 755 *.run
+            ./*.run --silent --toolkit >>$install_log
             curl -X POST -d "file=cuda" "http://$1:5000/receive_nfs_status"
         else
             wget -q http://$1:5000/workspace/drivers/${CUDA}
-            chmod 755 ${CUDA}
-            ./${CUDA} --silent --toolkit >>$install_log
+            chmod 755 *.run
+            ./*.run --silent --toolkit >>$install_log
         fi
 
         echo 'export PATH=$PATH:/usr/local/cuda/bin' >>/etc/profile
@@ -301,7 +300,7 @@ install_compute() {
     systemctl restart docker >>$install_log
     echo -e "\e[32m$(date +%Y-%m-%d_%H-%M-%S) Finish ALL------\e[0m" >>$install_log
     rm -rf common/ ib/ nvidia/
-    rm -f common.tgz ib.tgz nvidia.tgz ${CUDA}
+    rm -f common.tgz ib.tgz nvidia.tgz *.run
 
 }
 
