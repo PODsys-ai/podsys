@@ -1,0 +1,4 @@
+.gitconfig
+*.spec
+**/__pycache__/
+**/dist/

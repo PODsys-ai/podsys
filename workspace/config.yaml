@@ -1,0 +1,6 @@
+manager_ip:192.168.2.11
+dhcp_s:192.168.2.201
+dhcp_e:192.168.2.220
+manager_nic:enp61s0f2
+compute_passwd:your_password
+compute_storage:sda
