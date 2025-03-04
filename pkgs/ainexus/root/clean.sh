@@ -5,7 +5,7 @@ rm /workspace/log/dnsmasq.log
 
 umount /iso
 
-rm -f /tftp/ubuntu2204.cfg
+rm -f /tftp/ubuntu2404.cfg
 rm -f /user-data/user-data
 
 rm -f /var/log/*.log

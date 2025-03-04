@@ -16,10 +16,10 @@ nfs_status=$(systemctl is-active nfs-server 2>/dev/null)
 
 # expected
 expected_system_version="Ubuntu 24.04.2 LTS"
-expected_kernel_version="6.8.0-41-generic"
+expected_kernel_version="6.8.0-53-generic"
 expected_gpu_driver_version="570.86.15"
 expected_cuda_version="12.8"
-expected_docker_version="27.5.1"
+expected_docker_version="28.0.1"
 expected_nvidia_container_version="1.17.4"
 expected_ofed_info="MLNX_OFED_LINUX-24.10-1.1.4.0:"
 expected_pdsh="pdsh-2.34 (+readline+debug)"
