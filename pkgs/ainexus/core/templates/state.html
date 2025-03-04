@@ -1,0 +1,33 @@
+<table class="table table-bordered table-striped" id="systemStatusTable">
+    <thead>
+        <tr>
+            {% for key in data[0] %}
+            <th>{{ key }}</th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in data %}
+        <tr>
+            {% for key, value in row.items() %}
+            {% if loop.last %}
+            <td>
+                <a onclick="window.open('/logs/{{ value }}', '_blank', 'width=600, height=800')"
+                    style="color: blue; text-decoration: underline; cursor: pointer;">{{ value }}</a>
+            </td>
+            {% elif value == 'T' %}
+            <td class="green-mark"> &#10003 </td>
+            {% elif value == 'F' %}
+            <td> </td>
+            {% elif value == 'W' %}
+            <td class="red-mark"> &#215 </td>
+            {% elif value == 'M' %}
+            <td class="red-mark"> ! </td>
+            {% else %}
+            <td>{{ value }}</td>
+            {% endif %}
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

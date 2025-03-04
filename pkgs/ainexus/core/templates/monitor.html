@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link rel="stylesheet" href="/static/bootstrap.min.css" />
+    <style>
+        .table {
+            width: 80%;
+            margin: 0 auto;
+        }
+
+        .table td,
+        .table th {
+            text-align: center;
+        }
+
+        .table tbody tr {
+            min-height: 6px;
+        }
+
+        .green-mark {
+            color: green;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .red-mark {
+            color: red;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .yellow-mark {
+            color: rgb(209, 230, 14);
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        td,
+        th {
+            vertical-align: middle;
+        }
+    </style>
+    <script src="/static/jquery-3.6.4.min.js"></script>
+</head>
+
+<body>
+    <h1>PODsys Monitor</h1>
+    <div id="tableContainer">
+        <table class="table table-bordered table-striped" id="systemStatusTable"></table>
+    </div>
+    <script>
+        function refreshStateTable() {
+            $.ajax({
+                url: "/get_state_table",
+                type: "GET",
+                success: function (table_content) {
+                    $("#systemStatusTable").html(table_content);
+                },
+            });
+        }
+        function updateSpeed() {
+            $.get("/speed", function (data) {
+                $("#rx_speed").text(data.rx_speed.toFixed(2));
+                $("#tx_speed").text(data.tx_speed.toFixed(2));
+            });
+        }
+
+        function updateTime() {
+            $.get("/time", function (data) {
+                var seconds = data.installTime;
+                var hours = Math.floor(seconds / 3600);
+                var minutes = Math.floor((seconds % 3600) / 60);
+                var remainingSeconds = seconds % 60;
+                $("#installTime").text(
+                    hours +
+                    ":" +
+                    (minutes < 10 ? "0" : "") +
+                    minutes +
+                    ":" +
+                    (remainingSeconds < 10 ? "0" : "") +
+                    remainingSeconds
+                );
+            });
+        }
+
+        function updateusedip() {
+            $.get("/updateusedip", function (data) {
+                $("#usedip").text(data["usedip"]);
+            });
+        }
+
+        function refreshCountTable() {
+            fetch("/refresh_count")
+                .then((response) => response.json())
+                .then((data) => {
+                    document.getElementById("cnt_start_tag").innerText =
+                        data.cnt_start_tag;
+                    document.getElementById("cnt_Initrd").innerText = data.cnt_Initrd;
+                    document.getElementById("cnt_vmlinuz").innerText = data.cnt_vmlinuz;
+                    document.getElementById("cnt_ISO").innerText = data.cnt_ISO;
+                    document.getElementById("cnt_userdata").innerText =
+                        data.cnt_userdata;
+                    document.getElementById("cnt_preseed").innerText = data.cnt_preseed;
+                    document.getElementById("cnt_common").innerText = data.cnt_common;
+                    document.getElementById("cnt_ib").innerText = data.cnt_ib;
+                    document.getElementById("cnt_nvidia").innerText = data.cnt_nvidia;
+                    document.getElementById("cnt_cuda").innerText = data.cnt_cuda;
+                    document.getElementById("cnt_end_tag").innerText = data.cnt_end_tag;
+                })
+                .catch((error) => console.error("Error:", error));
+        }
+        refreshStateTable();
+        refreshCountTable();
+        updateusedip();
+        setInterval(refreshStateTable, 12000);
+        setInterval(refreshCountTable, 12000);
+        setInterval(updateusedip, 12000);
+        setInterval(updateSpeed, 1000);
+        setInterval(updateTime, 1000);
+    </script>
+    <br /><br />
+    <table class="table table-bordered table-striped" id="networkspeedTable">
+        <tbody>
+            <tr>
+                <td colspan="2">
+                    <h6>Network Speed ({{interface}})</h6>
+                </td>
+                <td colspan="1">
+                    <h6>Install Time</h6>
+                </td>
+                <td colspan="1">
+                    <h6>DHCP Usage</h6>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="1">
+                    <h6>
+                        <p>RX: <span id="rx_speed"></span> MB/s</p>
+                    </h6>
+                </td>
+                <td colspan="1">
+                    <h6>
+                        <p>TX: <span id="tx_speed"></span> MB/s</p>
+                    </h6>
+                </td>
+
+                <td colspan="1">
+                    <h6>
+                        <p><span id="installTime"></span></p>
+                    </h6>
+                </td>
+                <td colspan="1">
+                    <h6>
+                        <p><span id="usedip"></span> /{{total_ips}}</p>
+                    </h6>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-bordered table-striped" id="fileTransferTable">
+        <tbody>
+            <tr>
+                <td colspan="11">
+                    <h6>Flie Transfer</h6>
+                </td>
+            </tr>
+            <tr>
+                <td>Connected</td>
+                <td>initrd</td>
+                <td>vmlinuz</td>
+                <td>ISO</td>
+                <td>user-data</td>
+                <td>preseed.sh</td>
+                <td>Common Driver</td>
+                <td>Infiniband Driver</td>
+                <td>Nvidia Driver</td>
+                <td>CUDA Toolkit</td>
+                <td>Finished</td>
+            </tr>
+            <tr>
+                <td id="cnt_start_tag">{{cnt_start_tag}}</td>
+                <td id="cnt_Initrd">{{cnt_Initrd}}</td>
+                <td id="cnt_vmlinuz">{{cnt_vmlinuz}}</td>
+                <td id="cnt_ISO">{{cnt_ISO}}</td>
+                <td id="cnt_userdata">{{cnt_userdata}}</td>
+                <td id="cnt_preseed">{{cnt_preseed}}</td>
+                <td id="cnt_common">{{cnt_common}}</td>
+                <td id="cnt_ib">{{cnt_ib}}</td>
+                <td id="cnt_nvidia">{{cnt_nvidia}}</td>
+                <td id="cnt_cuda">{{cnt_cuda}}</td>
+                <td id="cnt_end_tag">{{cnt_end_tag}}</td>
+            </tr>
+        </tbody>
+    </table>
+    <br /><br />
+</body>
+
+</html>

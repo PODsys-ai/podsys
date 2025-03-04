@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>{{file_path}}</title>
+    <script>
+        function fetchAndRefreshContent() {
+            fetch("/logs/{{file_path}}")
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`no log file: ${response.status}`);
+                    }
+                    return response.text();
+                })
+                .then(data => {
+                    document.getElementById('content').innerHTML = data;
+                })
+                .catch(error => {
+                    document.getElementById('content').innerHTML = "no log file";
+                    console.warn('no log file:', error.message);
+                });
+        }
+        setInterval(fetchAndRefreshContent, 3000);
+    </script>
+</head>
+
+<body>
+    <div id="content">
+        <pre>{{ file_content }}</pre>
+    </div>
+</body>
+
+</html>
