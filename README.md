@@ -19,4 +19,6 @@ To achieve these capabilities, PODsys integrates dozens of drivers, softwares, a
 
 Please visit the official website at [https://podsys.ai/](https://podsys.ai/)
 
-- **Different versions of the code are maintained in their respective branches. Please check out the branch that matches your requirements.**
+# current version
+
+v3.0 support arm64 + NVIDIA
