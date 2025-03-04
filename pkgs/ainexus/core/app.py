@@ -139,7 +139,7 @@ def get_time():
         if os.path.exists(dnsmasq_log_path):
             with open(dnsmasq_log_path, "r") as file:
                 for line in file:
-                    if "/tftp/ubuntu2404.cfg" in line:
+                    if "/tftp/ubuntu2204.cfg" in line:
                         time_regex = r"(\w{3}\s+\d{1,2}\s+\d{2}:\d{2}:\d{2})"
                         matched = re.search(time_regex, line)
                         time_str = matched.group(1)
@@ -363,7 +363,7 @@ def receive_serial_e():
         if os.path.exists(dnsmasq_log_path):
             with open(dnsmasq_log_path, "r") as file:
                 for line in file:
-                    if "/tftp/ubuntu2404.cfg" in line:
+                    if "/tftp/ubuntu2204.cfg" in line:
                         time_regex = r"(\w{3}\s+\d{1,2}\s+\d{2}:\d{2}:\d{2})"
                         matched = re.search(time_regex, line)
                         time_str = matched.group(1)

@@ -51,7 +51,7 @@ def count_dnsmasq(dnsmasq_log_path):
     try:
         with open(dnsmasq_log_path, "r") as file:
             for line in file:
-                if "/tftp/ubuntu2404.cfg" in line:
+                if "/tftp/ubuntu2204.cfg" in line:
                     starttag_count += 1
     except FileNotFoundError:
         print(f"Error: The file {dnsmasq_log_path} does not exist.")
