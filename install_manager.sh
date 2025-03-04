@@ -44,7 +44,7 @@ hostname=$(hostname)
 timestamp=$(date +%Y-%m-%d_%H-%M-%S)
 install_log="./workspace/log/${hostname}_install_${timestamp}.log"
 
-IB=MLNX_OFED_LINUX-24.10-1.1.4.0-ubuntu24.04-ext
+IB=MLNX_OFED_LINUX-24.10-2.1.8.0-ubuntu24.04-ext
 
 # install common deb
 echo -e "\033[32m---Install deb---\033[0m"

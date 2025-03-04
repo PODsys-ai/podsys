@@ -89,7 +89,7 @@ install_compute() {
     curl -X POST -d "serial=$SN&log=$log_name" "http://$1:5000/updatelog"
 
     CUDA=cuda_12.8.0_570.86.10_linux.run
-    IB=MLNX_OFED_LINUX-24.10-1.1.4.0-ubuntu22.04-ext
+    IB=MLNX_OFED_LINUX-24.10-2.1.8.0-ubuntu24.04-ext
 
     # install deb
     echo -e "\e[32m$(date +%Y-%m-%d_%H-%M-%S) Start install deb------\e[0m" >>$install_log
