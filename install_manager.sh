@@ -140,6 +140,9 @@ if lspci | grep -i "3D controller: NVIDIA"; then
     echo -e "\033[32m---Install NVIDIA IMEX---\033[0m"
     echo -e "\e[32m$(date +%Y-%m-%d_%H-%M-%S) Start install NVIDIA IMEX------\e[0m" >>$install_log
     ./nvidia/nvidia-imex-aarch64-570.82.run >>$install_log
+    if ! grep -q "options nvidia NVreg_CreateImexChannel10=1" /etc/modprobe.d/nvidia.conf; then
+        echo "options nvidia NVreg_CreateImexChannel10=1" >>/etc/modprobe.d/nvidia.conf
+    fi
 
     # Install CUDA
     echo -e "\033[32m---Install CUDA---\033[0m"
