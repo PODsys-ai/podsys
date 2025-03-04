@@ -21,4 +21,4 @@ Please visit the official website at [https://podsys.ai/](https://podsys.ai/)
 
 # current version
 
-v3.0 support x86-64 + NVIDAI
+v3.0 support x86-64 + NVIDIA
