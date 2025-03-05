@@ -33,7 +33,7 @@ if [ "${download_mode}" == "p2p" ]; then
   mkdir -p "/workspace/torrents"
   transmission-create -o /workspace/torrents/drivers.torrent -t http://${manager_ip}:6969/announce -p /workspace/drivers/
   chmod 755 -R /workspace/torrents
-  nohup ctorrent -s /workspace/drivers /workspace/torrents/drivers.torrent > /dev/null 2>&1 &
+  ctorrent -s /workspace/drivers /workspace/torrents/drivers.torrent -d
   sleep 2s
 fi
 

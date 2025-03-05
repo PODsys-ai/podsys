@@ -41,7 +41,7 @@ conf_ip() {
         else
             echo "$SN NO DNS" >>/podsys/log/conf_ip.log
         fi
-        
+
         if [ -n "$docker0_ip" ] && [ "$docker0_ip" != "none" ]; then
             mkdir -p /etc/docker
             if [ ! -f /etc/docker/daemon.json ]; then
@@ -88,25 +88,16 @@ install_compute() {
     log_name="${HOSTNAME}_install_${timestamp}.log"
     curl -X POST -d "serial=$SN&log=$log_name" "http://$1:5000/updatelog"
 
-    CUDA=cuda_12.8.0_570.86.10_linux.run
     IB=MLNX_OFED_LINUX-24.10-2.1.8.0-ubuntu24.04-ext
 
     # install deb
     echo -e "\e[32m$(date +%Y-%m-%d_%H-%M-%S) Start install deb------\e[0m" >>$install_log
     apt purge -y unattended-upgrades >>$install_log
 
-    if [ "$method" == "http" ]; then
-        wget -q http://$1:5000/workspace/drivers/common.tgz
-        tar -xzf common.tgz
-        install_packages_from_dir "./common"
-    elif [ "$method" == "nfs" ]; then
+    if [ "$method" == "nfs" ]; then
         install_packages_from_dir "./podsys/common"
         curl -X POST -d "file=common" "http://$1:5000/receive_nfs_status"
-    elif [ "$method" == "p2p" ]; then
-        install_packages_from_dir "./common"
     else
-        wget -q http://$1:5000/workspace/drivers/common.tgz
-        tar -xzf common.tgz
         install_packages_from_dir "./common"
     fi
 
@@ -118,18 +109,10 @@ install_compute() {
         curl -X POST -d "serial=$SN&ibstate=ok" "http://$1:5000/ibstate"
         echo -e "\e[32m$(date +%Y-%m-%d_%H-%M-%S) Start install MLNX------\e[0m" >>$install_log
 
-        if [ "$method" == "http" ]; then
-            wget -q http://$1:5000/workspace/drivers/ib.tgz
-            tar -xzf ib.tgz
-            ./ib/${IB}/mlnxofedinstall --without-fw-update --with-nfsrdma --all --force >>$install_log
-        elif [ "$method" == "nfs" ]; then
+        if [ "$method" == "nfs" ]; then
             ./podsys/ib/${IB}/mlnxofedinstall --without-fw-update --with-nfsrdma --all --force >>$install_log
             curl -X POST -d "file=ib" "http://$1:5000/receive_nfs_status"
-        elif [ "$method" == "p2p" ]; then
-            ./ib/${IB}/mlnxofedinstall --without-fw-update --with-nfsrdma --all --force >>$install_log
         else
-            wget -q http://$1:5000/workspace/drivers/ib.tgz
-            tar -xzf ib.tgz
             ./ib/${IB}/mlnxofedinstall --without-fw-update --with-nfsrdma --all --force >>$install_log
         fi
 
@@ -149,17 +132,9 @@ install_compute() {
         echo "blacklist nouveau" | tee /etc/modprobe.d/nouveau-blacklist.conf
         echo "options nouveau modeset=0" | tee -a /etc/modprobe.d/nouveau-blacklist.conf
 
-        if [ "$method" == "http" ]; then
-            wget -q http://$1:5000/workspace/drivers/nvidia.tgz
-            tar -xzf nvidia.tgz
-            ./nvidia/*.run --accept-license --no-questions --no-install-compat32-libs --ui=none --disable-nouveau >>$install_log
-        elif [ "$method" == "nfs" ]; then
+        if [ "$method" == "nfs" ]; then
             ./podsys/nvidia/*.run --accept-license --no-questions --no-install-compat32-libs --ui=none --disable-nouveau >>$install_log
-        elif [ "$method" == "p2p" ]; then
-            ./nvidia/*.run --accept-license --no-questions --no-install-compat32-libs --ui=none --disable-nouveau >>$install_log
         else
-            wget -q http://$1:5000/workspace/drivers/nvidia.tgz
-            tar -xzf nvidia.tgz
             ./nvidia/*.run --accept-license --no-questions --no-install-compat32-libs --ui=none --disable-nouveau >>$install_log
         fi
 
@@ -198,12 +173,8 @@ install_compute() {
         systemctl start nvidia-persistenced.service >>$install_log
 
         # Install nv docker
-        if [ "$method" == "http" ]; then
-            dpkg -i ./nvidia/docker/*.deb >>$install_log
-        elif [ "$method" == "nfs" ]; then
+        if [ "$method" == "nfs" ]; then
             dpkg -i ./podsys/nvidia/docker/*.deb >>$install_log
-        elif [ "$method" == "p2p" ]; then
-            dpkg -i ./nvidia/docker/*.deb >>$install_log
         else
             dpkg -i ./nvidia/docker/*.deb >>$install_log
         fi
@@ -217,12 +188,8 @@ install_compute() {
         if [ "$device_id" = "26b9" ]; then
             echo "Does not support NVIDIA fabricmanager" >>$install_log
         else
-            if [ "$method" == "http" ]; then
-                dpkg -i ./nvidia/nv-fm/*.deb >>$install_log
-            elif [ "$method" == "nfs" ]; then
+            if [ "$method" == "nfs" ]; then
                 dpkg -i ./podsys/nvidia/nv-fm/*.deb >>$install_log
-            elif [ "$method" == "p2p" ]; then
-                dpkg -i ./nvidia/nv-fm/*.deb >>$install_log
             else
                 dpkg -i ./nvidia/nv-fm/*.deb >>$install_log
             fi
@@ -233,18 +200,11 @@ install_compute() {
 
         # Install CUDA
         echo -e "\e[32m$(date +%Y-%m-%d_%H-%M-%S) Start install cuda------\e[0m" >>$install_log
-        if [ "$method" == "http" ]; then
-            wget -q http://$1:5000/workspace/drivers/${CUDA}
-            chmod 755 *.run
-            ./*.run --silent --toolkit >>$install_log
-        elif [ "$method" == "nfs" ]; then
+
+        if [ "$method" == "nfs" ]; then
             ./podsys/drivers/*.run --silent --toolkit >>$install_log
-        elif [ "$method" == "p2p" ]; then
-            chmod 755 *.run
-            ./*.run --silent --toolkit >>$install_log
             curl -X POST -d "file=cuda" "http://$1:5000/receive_nfs_status"
         else
-            wget -q http://$1:5000/workspace/drivers/${CUDA}
             chmod 755 *.run
             ./*.run --silent --toolkit >>$install_log
         fi
@@ -255,12 +215,8 @@ install_compute() {
 
         # Install DCGM
         echo -e "\e[32m$(date +%Y-%m-%d_%H-%M-%S) Install NVIDIA DCGM------\e[0m" >>$install_log
-        if [ "$method" == "http" ]; then
-            dpkg -i ./nvidia/dcgm/*.deb >>$install_log
-        elif [ "$method" == "nfs" ]; then
+        if [ "$method" == "nfs" ]; then
             dpkg -i ./podsys/nvidia/dcgm/*.deb >>$install_log
-        elif [ "$method" == "p2p" ]; then
-            dpkg -i ./nvidia/dcgm/*.deb >>$install_log
         else
             dpkg -i ./nvidia/dcgm/*.deb >>$install_log
         fi
@@ -269,25 +225,19 @@ install_compute() {
 
         # Install NCCL
         echo -e "\e[32m$(date +%Y-%m-%d_%H-%M-%S) Install NVIDIA NCCL------\e[0m" >>$install_log
-        if [ "$method" == "http" ]; then
-            dpkg -i ./nvidia/nccl/*.deb >>$install_log
-        elif [ "$method" == "nfs" ]; then
+
+        if [ "$method" == "nfs" ]; then
             dpkg -i ./podsys/nvidia/nccl/*.deb >>$install_log
-        elif [ "$method" == "p2p" ]; then
-            dpkg -i ./nvidia/nccl/*.deb >>$install_log
         else
             dpkg -i ./nvidia/nccl/*.deb >>$install_log
         fi
 
         # Install cudnn
         echo -e "\e[32m$(date +%Y-%m-%d_%H-%M-%S) Install NVIDIA cuDNN------\e[0m" >>$install_log
-        if [ "$method" == "http" ]; then
-            dpkg -i ./nvidia/cudnn/*.deb >>$install_log
-        elif [ "$method" == "nfs" ]; then
+
+        if [ "$method" == "nfs" ]; then
             dpkg -i ./podsys/nvidia/cudnn/*.deb >>$install_log
             curl -X POST -d "file=nvidia" "http://$1:5000/receive_nfs_status"
-        elif [ "$method" == "p2p" ]; then
-            dpkg -i ./nvidia/cudnn/*.deb >>$install_log
         else
             dpkg -i ./nvidia/cudnn/*.deb >>$install_log
         fi
@@ -299,11 +249,13 @@ install_compute() {
 
     systemctl restart docker >>$install_log
     echo -e "\e[32m$(date +%Y-%m-%d_%H-%M-%S) Finish ALL------\e[0m" >>$install_log
-    rm -rf common/ ib/ nvidia/
-    rm -f common.tgz ib.tgz nvidia.tgz *.run
 
 }
 
+clean() {
+    rm -rf common/ ib/ nvidia/
+    rm -f common.tgz ib.tgz nvidia.tgz *.run
+}
 
 # install compute
 SN=$(dmidecode -t 1 | grep Serial | awk -F : '{print $2}' | awk -F ' ' '{print $1}')
@@ -321,8 +273,7 @@ else
     HOSTNAME="node${SN}"
 fi
 
-
-install_compute "$1" "$2" 
+install_compute "$1" "$2"
 curl -X POST -d "serial=$SN" http://"$1":5000/receive_serial_e
 
 # set limits
@@ -340,3 +291,4 @@ conf_ip "$1"
 
 # set release
 set_release
+clean

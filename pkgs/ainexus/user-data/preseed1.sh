@@ -3,6 +3,7 @@ cd $(dirname $0)
 
 G_SERVER_IP="$1"
 G_DOWNLOAD_MODE="$2"
+CUDA=cuda_12.8.0_570.86.10_linux.run
 
 setup_nfs() {
     wget http://${G_SERVER_IP}:5000/workspace/nfs.tgz
@@ -19,18 +20,35 @@ setup_nfs
 
 if [ "$G_DOWNLOAD_MODE" == "p2p" ]; then
 
-    nohup ctorrent -s /tmp /target/podsys/torrents/drivers.torrent > /tmp/ctorrent.log 2>&1 &
+    nohup ctorrent -s /target /target/podsys/torrents/drivers.torrent \
+        -X "curl -X POST http://${G_SERVER_IP}:5000/receive_p2p_status && sleep 20 && touch /tmp/complated.flag" \
+        >/dev/null 2>&1 &
+
     ctorrent_pid=$!
-    while true; do
-        if tail -n 20 /tmp/ctorrent.log | grep -q "Download complete"; then
-            curl -X POST  "http://${G_SERVER_IP}:5000/receive_p2p_status"
-            break
-        fi
+
+    while [ ! -f "/tmp/complated.flag" ]; do
         sleep 10
     done
-    sleep 10
-    tar -xzf /tmp/common.tgz -C /target/
-    tar -xzf /tmp/ib.tgz -C /target/
-    tar -xzf /tmp/nvidia.tgz -C /target/
-    cp /tmp/*.run /target/
+    tar -xzf /target/common.tgz -C /target/
+    tar -xzf /target/ib.tgz -C /target/
+    tar -xzf /target/nvidia.tgz -C /target/
+
+elif [ "$G_DOWNLOAD_MODE" == "nfs" ]; then
+    echo
+else
+
+    wget -q -P /target http://${G_SERVER_IP}:5000/workspace/drivers/common.tgz
+    tar -xzf /target/common.tgz -C /target/
+
+    if lspci | grep -i "Mellanox"; then
+        wget -q -P /target http://${G_SERVER_IP}:5000/workspace/drivers/ib.tgz
+        tar -xzf /target/ib.tgz -C /target/
+    fi
+
+    if lspci | grep -i nvidia; then
+        wget -q -P /target http://${G_SERVER_IP}:5000/workspace/drivers/nvidia.tgz
+        wget -q -P /target http://${G_SERVER_IP}:5000/workspace/drivers/${CUDA}
+        tar -xzf /target/nvidia.tgz -C /target/
+    fi
+
 fi

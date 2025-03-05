@@ -16,13 +16,13 @@ delete_logs
 get_rsa nexus
 check_iplist_format "workspace/iplist.txt"
 
-if docker ps -a --format '{{.Image}}' | grep -q "ainexus:v3.0"; then
-    docker stop $(docker ps -a -q --filter ancestor=ainexus:v3.0) >/dev/null
-    docker rm $(docker ps -a -q --filter ancestor=ainexus:v3.0) >/dev/null
-    docker rmi ainexus:v3.0 >/dev/null
+if docker ps -a --format '{{.Image}}' | grep -q "ainexus:v3.1"; then
+    docker stop $(docker ps -a -q --filter ancestor=ainexus:v3.1) >/dev/null
+    docker rm $(docker ps -a -q --filter ancestor=ainexus:v3.1) >/dev/null
+    docker rmi ainexus:v3.1 >/dev/null
 fi
 
-docker import pkgs/ainexus-3.1 ainexus:v3.0 >/dev/null &
+docker import pkgs/ainexus-3.1 ainexus:v3.1 >/dev/null &
 pid=$!
 while ps -p $pid >/dev/null; do
     echo -n "*"
@@ -39,13 +39,13 @@ if [ "$download_mode" = "nfs" ]; then
     tar -xzf $PWD/workspace/drivers/nvidia.tgz -C $PWD/workspace/
 fi
 
-docker run -e "download_mode=$download_mode" -e "NEW_PUB_KEY=$new_pub_key" --name podsys --privileged=true -it --network=host -v $PWD/workspace:/workspace ainexus:v3.0 /bin/bash
+docker run -e "download_mode=$download_mode" -e "NEW_PUB_KEY=$new_pub_key" --name podsys --privileged=true -it --network=host -v $PWD/workspace:/workspace ainexus:v3.1 /bin/bash
 
 sleep 1
-if docker ps -a --format '{{.Image}}' | grep -q "ainexus:v3.0"; then
-    docker stop $(docker ps -a -q --filter ancestor=ainexus:v3.0) >/dev/null
-    docker rm $(docker ps -a -q --filter ancestor=ainexus:v3.0) >/dev/null
-    docker rmi ainexus:v3.0 >/dev/null
+if docker ps -a --format '{{.Image}}' | grep -q "ainexus:v3.1"; then
+    docker stop $(docker ps -a -q --filter ancestor=ainexus:v3.1) >/dev/null
+    docker rm $(docker ps -a -q --filter ancestor=ainexus:v3.1) >/dev/null
+    docker rmi ainexus:v3.1 >/dev/null
 fi
 
 if [ "$download_mode" = "nfs" ]; then
