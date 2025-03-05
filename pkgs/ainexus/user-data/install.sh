@@ -72,67 +72,37 @@ conf_ip() {
 }
 
 install_compute() {
-    local method=$2
 
     timestamp=$(date +%Y-%m-%d_%H-%M-%S)
     install_log="/podsys/log/${HOSTNAME}_install_${timestamp}.log"
     log_name="${HOSTNAME}_install_${timestamp}.log"
     curl -X POST -d "serial=$SN&log=$log_name" "http://$1:5000/updatelog"
 
-    CUDA=cuda_12.8.0_570.86.10_linux_sbsa.run
-
     # install deb
     echo -e "\e[32m$(date +%Y-%m-%d_%H-%M-%S) Start install deb------\e[0m" >>$install_log
     apt purge -y unattended-upgrades >>$install_log
-
-    if [ "$method" == "http" ]; then
-        wget -q -P /podsys http://$1:5000/workspace/drivers/common.tgz
-    fi
-
     echo -e "\e[32m$(date +%Y-%m-%d_%H-%M-%S) Finish install deb------\e[0m" >>$install_log
 
     # install MLNX
     if lspci | grep -i "Mellanox"; then
 
         curl -X POST -d "serial=$SN&ibstate=ok" "http://$1:5000/ibstate"
-        echo -e "\e[32m$(date +%Y-%m-%d_%H-%M-%S) Start install MLNX------\e[0m" >>$install_log
-
-        if [ "$method" == "http" ]; then
-            wget -q -P /podsys http://$1:5000/workspace/drivers/ib.tgz
-        fi
-
-        echo -e "\e[32m$(date +%Y-%m-%d_%H-%M-%S) Finish install MLNX------\e[0m" >>$install_log
+        echo -e "\e[32m$(date +%Y-%m-%d_%H-%M-%S) No MLNX Infiniband Device\e[0m" >>$install_log
 
     else
         curl -X POST -d "serial=$SN&ibstate=0" "http://$1:5000/ibstate"
-        echo -e "\e[32m$(date +%Y-%m-%d_%H-%M-%S) No MLNX Infiniband Device\e[0m" >>$install_log
+        echo -e "\e[32m$(date +%Y-%m-%d_%H-%M-%S) Get MLNX Infiniband Device\e[0m" >>$install_log
     fi
 
     if lspci | grep -i nvidia; then
 
         curl -X POST -d "serial=$SN&gpustate=ok" "http://$1:5000/gpustate"
-        # install GPU driver
-        echo -e "\e[32m$(date +%Y-%m-%d_%H-%M-%S) Start install GPU driver------\e[0m" >>$install_log
-
-        if [ "$method" == "http" ]; then
-            wget -q -P /podsys http://$1:5000/workspace/drivers/nvidia.tgz
-        fi
-
-        # Install CUDA
-        echo -e "\e[32m$(date +%Y-%m-%d_%H-%M-%S) Start install cuda------\e[0m" >>$install_log
-        if [ "$method" == "http" ]; then
-            wget -q -P /podsys http://$1:5000/workspace/drivers/${CUDA}
-        fi
-
+        echo -e "\e[32m$(date +%Y-%m-%d_%H-%M-%S) Get NVIDIA GPU Device\e[0m" >>$install_log
     else
         curl -X POST -d "serial=$SN&gpustate=0" "http://$1:5000/gpustate"
         echo -e "\e[32m$(date +%Y-%m-%d_%H-%M-%S) No NVIDIA GPU Device\e[0m" >>$install_log
-
     fi
-
-    systemctl restart docker >>$install_log
     echo -e "\e[32m$(date +%Y-%m-%d_%H-%M-%S) Finish ALL------\e[0m" >>$install_log
-
 }
 
 # install compute
@@ -151,7 +121,7 @@ else
     HOSTNAME="node${SN}"
 fi
 
-install_compute "$1" "$2"
+install_compute "$1"
 curl -X POST -d "serial=$SN" http://"$1":5000/receive_serial_e
 
 # set limits

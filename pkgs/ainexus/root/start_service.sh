@@ -1,7 +1,6 @@
 #!/bin/bash
 cd $(dirname $0)
 
-
 ISO=ubuntu-22.04.5-live-server-arm64.iso
 manager_ip=$(grep "manager_ip" /workspace/config.yaml | cut -d ":" -f 2 | tr -d '[:space:]')
 manager_nic=$(grep "manager_nic" /workspace/config.yaml | cut -d ":" -f 2 | tr -d '[:space:]')
@@ -33,7 +32,7 @@ if [ "${download_mode}" == "p2p" ]; then
   mkdir -p "/workspace/torrents"
   transmission-create -o /workspace/torrents/drivers.torrent -t http://${manager_ip}:6969/announce -p /workspace/drivers/
   chmod 755 -R /workspace/torrents
-  nohup ctorrent -s /workspace/drivers /workspace/torrents/drivers.torrent > /dev/null 2>&1 &
+  ctorrent -s /workspace/drivers /workspace/torrents/drivers.torrent -d
   sleep 2s
 fi
 
@@ -156,7 +155,7 @@ autoinstall:
     - wget http://${manager_ip}:5000/user-data/preseed1.sh && chmod 755 preseed1.sh && bash preseed1.sh ${manager_ip} ${download_mode}
     - curtin in-target --target=/target -- wget http://${manager_ip}:5000/user-data/install.sh
     - curtin in-target --target=/target -- chmod 755 install.sh || true
-    - curtin in-target --target=/target -- /install.sh ${manager_ip} ${download_mode}
+    - curtin in-target --target=/target -- /install.sh ${manager_ip}
     - umount /target/podsys || true
     - rm -f  /target/install.sh || true
     - cp /autoinstall.yaml /target/podsys/autoinstall.yaml || true
@@ -251,7 +250,7 @@ echo -e "$userdata" >> /user-data/user-data
 echo
 sleep 1
 echo "starting services: "
-service dnsmasq start
+#service dnsmasq start
 echo
 sleep 1
 echo "checking services: "

@@ -30,14 +30,8 @@ while ps -p $pid >/dev/null; do
 done
 echo
 
-# download_mode=http|nfs|p2p
+# download_mode=http|p2p
 download_mode="http"
-
-if [ "$download_mode" = "nfs" ]; then
-    tar -xzf $PWD/workspace/drivers/common.tgz -C $PWD/workspace/
-    tar -xzf $PWD/workspace/drivers/ib.tgz -C $PWD/workspace/
-    tar -xzf $PWD/workspace/drivers/nvidia.tgz -C $PWD/workspace/
-fi
 
 docker run -e "download_mode=$download_mode" -e "NEW_PUB_KEY=$new_pub_key" --name podsys --privileged=true -it --network=host -v $PWD/workspace:/workspace ainexus:v3.0 /bin/bash
 
